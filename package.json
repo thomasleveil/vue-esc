@@ -16,6 +16,7 @@
     "build": "webpack --mode=production --progress --colors -p",
     "build:dev": "webpack --mode=development --progress --colors",
     "dev": "webpack --mode=development --progress --colors --watch",
+    "poi": "poi --serve --open",
     "test": "jest --coverage",
     "cover": "open coverage/lcov-report/index.html",
     "eslint": "eslint . --ext .js",
@@ -35,7 +36,10 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "jest": "^24.1.0",
+    "poi": "^12.5.5",
     "pre-commit": "^1.2.2",
+    "vue": "^2.6.7",
+    "vue-template-compiler": "^2.6.7",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3"
   },

@@ -14,21 +14,23 @@ const config = {
   },
 
   module: {
-    rules: [
-      {
-        enforce: 'pre',
-        test: /(\.jsx|\.js)$/,
-        loader: 'eslint-loader',
-        include: projectRoot,
-        exclude: /(node_modules|bower_components)/
-      },
-      {
-        test: /(\.jsx|\.js)$/,
-        loader: 'babel-loader',
-        include: projectRoot,
-        exclude: /(node_modules|bower_components)/
-      }
-    ]
+    rules: [{
+      enforce: 'pre',
+      test: /(\.jsx|\.js)$/,
+      loader: 'eslint-loader',
+      include: projectRoot,
+      exclude: /(node_modules|bower_components)/
+    },
+    {
+      test: /(\.jsx|\.js)$/,
+      loader: 'babel-loader',
+      include: projectRoot,
+      exclude: /(node_modules|bower_components)/
+    }]
+  },
+
+  devServer: {
+    contentBase: './dist'
   }
 }
 
