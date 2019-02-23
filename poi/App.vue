@@ -15,10 +15,21 @@
           </p>
         </v-alert>
         <v-card>
+          <v-container fluid>
+            <v-sparkline 
+              :value="memoryHistory" 
+              :gradient="['#f72047', '#ffd200', '#1feaea']"
+              :smooth="16"
+              :line-width="1"
+              :height="50"
+              auto-draw 
+              stroke-linecap="round"
+            ></v-sparkline>
+          </v-container>
           <ul>
             <li>
               <b>Memory used:</b>
-              {{ memory }} Mo
+              {{ Number(memory).toFixed(3) }} MB
             </li>
             <li>
               <b>keyup listeners currently on document:</b>
@@ -76,11 +87,15 @@ export default {
       show3: true,
       show4: true,
       show5: true,
-      memory: NaN
+      memory: NaN,
+      memoryHistory: [0, 0]
     }
   },
   mounted: function() {
-    this.refreshStats()
+    setInterval(() => {
+      this.refreshStats()
+      if (this.memory) this.memoryHistory.push(this.memory)
+    }, 2000);
   },
   methods: {
     showAll: function () {
@@ -104,7 +119,9 @@ export default {
       })
     },
     refreshStats: function () {
-      this.memory = window.performance ? Number(window.performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(3) : NaN
+      if (!window.performance) return
+      if (window.gc) window.gc()  // start chrome with --js-flags="--expose-gc"
+      this.memory = window.performance.memory.usedJSHeapSize / 1024 / 1024
     }
   }
 }
