@@ -15,27 +15,51 @@
           </p>
         </v-alert>
         <v-card>
-          <v-container fluid>
-            <v-sparkline 
-              :value="memoryHistory" 
-              :gradient="['#f72047', '#ffd200', '#1feaea']"
-              :smooth="16"
-              :line-width="1"
-              :height="50"
-              auto-draw 
-              stroke-linecap="round"
-            ></v-sparkline>
+          <v-container fluid pa-2>
+            <v-layout align-center justify-start>
+              <v-flex shrink pa-2>
+                <v-card max-width="400">
+                  <ul>
+                    <li>
+                      <b>Memory used:</b>
+                      {{ Number(memory).toFixed(1) }} MB
+                    </li>
+                    <li>
+                      <b>keyup listeners currently on document:</b>
+                      <i>In the Chrome DevTools Console, type: </i><code>window.getEventListeners(document).keyup.length</code>
+                    </li>
+                  </ul>
+                </v-card>
+              </v-flex>
+
+              <v-flex grow>
+                <v-card
+                  color="white"
+                  fluid
+                  grow
+                >
+                  <v-card-text>
+                    <v-sparkline 
+                      :value="memoryHistory.slice(-6)" 
+                      :gradient="['#f72047', '#ffd200', '#1feaea']"
+                      smooth="16"
+                      line-width="2"
+                      padding="16"
+                      auto-draw 
+                      stroke-linecap="round"
+                    >
+                      <template
+                        slot="label"
+                        slot-scope="item"
+                      >
+                        {{ Math.round(Number(item.value)) }} MB
+                      </template>
+                    </v-sparkline>
+                  </v-card-text>
+                </v-card>
+              </v-flex>
+            </v-layout>
           </v-container>
-          <ul>
-            <li>
-              <b>Memory used:</b>
-              {{ Number(memory).toFixed(3) }} MB
-            </li>
-            <li>
-              <b>keyup listeners currently on document:</b>
-              <i>In the Chrome DevTools Console, type: </i><code>window.getEventListeners(document).keyup.length</code>
-            </li>
-          </ul>
         </v-card>
 
         <v-card>
@@ -88,14 +112,15 @@ export default {
       show4: true,
       show5: true,
       memory: NaN,
-      memoryHistory: [0, 0]
+      memoryHistory: [0,0,0,0,0,0],
+      refreshInterval: 3000
     }
   },
   mounted: function() {
     setInterval(() => {
       this.refreshStats()
       if (this.memory) this.memoryHistory.push(this.memory)
-    }, 2000);
+    }, this.refreshInterval);
   },
   methods: {
     showAll: function () {
@@ -119,9 +144,12 @@ export default {
       })
     },
     refreshStats: function () {
-      if (!window.performance) return
       if (window.gc) window.gc()  // start chrome with --js-flags="--expose-gc"
-      this.memory = window.performance.memory.usedJSHeapSize / 1024 / 1024
+      this.memory = this.getMemory()
+    },
+    getMemory: function () {
+      if (!window.performance) return
+      return window.performance.memory.usedJSHeapSize / 1024 / 1024
     }
   }
 }
