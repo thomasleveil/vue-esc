@@ -1,55 +1,81 @@
 <template>
-  <div id="app">
-    <h3>vue-esc 2.0.0 Memory Leak Example</h3>
-    <p>To see the memory leak occur, open the Chrome Task Manager and then click the hide/show button 50 or so times.</p>
-    <p>You should notice the memory continue to increase and not be reclaimed.</p>
-    <ul>
-      <li>
-        <b>Memory used:</b>
-        {{ memory }} Mo
-      </li>
-      <li>
-        <b>keyup listeners currently on document:</b>
-        <i>In the Chrome DevTools Console, type: </i><code>window.getEventListeners(document).keyup.length</code>
-      </li>
+  <v-app id="app">
+    <v-toolbar app>vue-esc 2.0.0 Memory Leak Example</v-toolbar>
+    <v-content>
+      <v-container fluid>
+        <v-alert :value="true" type="info">
+          <p>To see the memory leak occur, open the Chrome Task Manager and then click the hide/show button 50 or so times.
+            <br>
+            You should notice the memory continue to increase and not be reclaimed.
+          </p>
+          <p>
+            Also, open a dialog by clicking on of the button and then hit the <code>ESC</code> key to close it.
+            <br>
+            You can notice how many times the v-esc callback function was called.
+          </p>
+        </v-alert>
+        <v-card>
+          <ul>
+            <li>
+              <b>Memory used:</b>
+              {{ memory }} Mo
+            </li>
+            <li>
+              <b>keyup listeners currently on document:</b>
+              <i>In the Chrome DevTools Console, type: </i><code>window.getEventListeners(document).keyup.length</code>
+            </li>
+          </ul>
+        </v-card>
 
-      
-      <li>vue-esc callback1 has been called {{ escCount1 }} times</li>
-      <li>vue-esc callback2 has been called {{ escCount2 }} times</li>
-      <li>vue-esc callback3 has been called {{ escCount3 }} times</li>
-      <li>vue-esc callback4 has been called {{ escCount4 }} times</li>
-      <li>vue-esc callback5 has been called {{ escCount5 }} times</li>
-    </ul>
-    <hr>
+        <v-card>
+          <v-btn 
+            ref="showAll"
+            v-if="!(show1 && show2 && show3 && show4 && show5)"
+            @click="showAll"
+            @hook:updated="() => $refs.showAll.$el.focus()"
+          >Show all</v-btn>
+          <v-btn 
+            ref="hideAll"
+            v-if="show1 || show2 || show3 || show4 || show5"
+            @click="hideAll"
+            @hook:updated="() => $refs.hideAll.$el.focus()"
+          >Hide all</v-btn>
+          <br>
+          <v-btn @click="() => show1=!show1">{{ show1 ? "Hide" : "Show" }} 1</v-btn>
+          <v-btn @click="() => show2=!show2">{{ show2 ? "Hide" : "Show" }} 2</v-btn>
+          <v-btn @click="() => show3=!show3">{{ show3 ? "Hide" : "Show" }} 3</v-btn>
+          <v-btn @click="() => show4=!show4">{{ show4 ? "Hide" : "Show" }} 4</v-btn>
+          <v-btn @click="() => show5=!show5">{{ show5 ? "Hide" : "Show" }} 5</v-btn>
+        </v-card>
 
-    <button v-if="showHuge" @click="hide">Hide</button>
-    <button v-if="!showHuge" @click="show">Show</button>
-
-    <div v-if="showHuge">
-      <huge v-esc="() => onEsc1()"></huge>
-      <huge v-esc="() => onEsc2()"></huge>
-      <huge v-esc="() => onEsc3()"></huge>
-      <huge v-esc="() => onEsc4()"></huge>
-      <huge v-esc="() => onEsc5()"></huge>
-    </div>
-  </div>
+        <v-container fluid>
+          <v-layout row wrap>
+            <MyComponent v-if="show1" tile></MyComponent>
+            <MyComponent v-if="show2" tile></MyComponent>
+            <MyComponent v-if="show3" tile></MyComponent>
+            <MyComponent v-if="show4" tile></MyComponent>
+            <MyComponent v-if="show5" tile></MyComponent>
+          </v-layout>
+        </v-container>
+      </v-container>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
-import HugeComponent from './Huge.vue'
+import MyComponent from './MyComponent.vue'
 
 export default {
   components: {
-    'huge': HugeComponent
+    MyComponent
   },
   data: function () {
     return {
-      showHuge: true,
-      escCount1: 0,
-      escCount2: 0,
-      escCount3: 0,
-      escCount4: 0,
-      escCount5: 0,
+      show1: true,
+      show2: true,
+      show3: true,
+      show4: true,
+      show5: true,
       memory: NaN
     }
   },
@@ -57,30 +83,25 @@ export default {
     this.refreshStats()
   },
   methods: {
-    show: function () {
-      this.showHuge = true
+    showAll: function () {
+      this.show1 = true
+      this.show2 = true
+      this.show3 = true
+      this.show4 = true
+      this.show5 = true
       this.$nextTick(() => {
         this.refreshStats()
       })
     },
-    hide: function () {
-      this.showHuge = false
-      this.refreshStats()
-    },
-    onEsc1: function () {
-      this.escCount1++
-    },
-    onEsc2: function () {
-      this.escCount2++
-    },
-    onEsc3: function () {
-      this.escCount3++
-    },
-    onEsc4: function () {
-      this.escCount4++
-    },
-    onEsc5: function () {
-      this.escCount5++
+    hideAll: function () {
+      this.show1 = false
+      this.show2 = false
+      this.show3 = false
+      this.show4 = false
+      this.show5 = false
+      this.$nextTick(() => {
+        this.refreshStats()
+      })
     },
     refreshStats: function () {
       this.memory = window.performance ? Number(window.performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(3) : NaN
@@ -88,5 +109,3 @@ export default {
   }
 }
 </script>
-
-
